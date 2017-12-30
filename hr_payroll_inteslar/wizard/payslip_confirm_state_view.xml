@@ -1,0 +1,30 @@
+<odoo>
+    <data>
+
+        <record id="payslip_confirm_view" model="ir.ui.view">
+            <field name="name">hr.payslip.confirm.form</field>
+            <field name="model">hr.payslip.confirm</field>
+            <field name="arch" type="xml">
+                <form string="Confirm Draft Payslips">
+                    <p class="oe_grey">
+                        Once draft payslip are confirmed, you will not be able
+                        to modify them. The payslip will receive a unique
+                        number and journal items will be created in your chart
+                        of accounts.
+                    </p>
+                    <footer>
+                        <button string="Confirm Payslips" name="payslip_confirm" type="object" default_focus="1" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window id="payslips_confirm_view"
+            multi="True"
+            key2="client_action_multi" name="Confirm Draft Payslips"
+            res_model="hr.payslip.confirm" src_model="hr.payslip"
+            view_mode="form" target="new" view_type="form" />
+
+    </data>
+</odoo>

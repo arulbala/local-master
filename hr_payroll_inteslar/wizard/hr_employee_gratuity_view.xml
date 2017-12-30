@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="hr_employee_gratuity_wizard_view_form_new" model="ir.ui.view">
+            <field name="name">hr.employee.gratuity.wizard.form</field>
+            <field name="model">hr.employee.gratuity.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Register Payment">
+                    <sheet>
+                        <field name="id" invisible="1"/>
+                        <div class="oe_title">
+                            <h1>Employee Gratuity</h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="employee_id" required="1" readonly="1"/>
+                                <field name="employee_join_date"/>
+                                <field name="employee_left_date"/>
+                                <field name="length_of_service"/>
+                                <label for="amount" readonly="1"/>
+                                <div name="amount_div" class="o_row">
+                                    <field name="amount" readonly="1"/>
+                                </div>
+                            </group>
+                            <group>
+                                <field name="one_day_salary" readonly="1"/>
+                                <field name="contract_type" readonly="1"/>
+                                <field name="manual_amount_boolean"/>
+                                <field name="manual_amount" attrs="{'invisible': [('manual_amount_boolean', '=', False)]}"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string='Confirm Gratuity' name="button_confirm_gratuity" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!--&lt;!&ndash; Expenses &ndash;&gt;-->
+        <!--<record id="hr_employee_gratuity_wizard_action" model="ir.actions.act_window">-->
+            <!--<field name="name">Gratuity Calculation</field>-->
+            <!--<field name="res_model">hr.employee.gratuity.wizard</field>-->
+            <!--<field name="src_model">hr.payslip</field>-->
+            <!--<field name="view_type">form</field>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="view_id" ref="hr_employee_gratuity_wizard_view_form"/>-->
+            <!--<field name="target">new</field>-->
+        <!--</record>-->
+
+        <act_window name="Gratuity Calculation"
+        res_model="hr.employee.gratuity.wizard"
+        src_model="hr.payslip"
+        view_mode="form"
+        target="new"
+        key2="client_action_relate"
+        id="hr_employee_gratuity_wizard_view_form_window"/>
+</odoo>

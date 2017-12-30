@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_employee_bank_accounts,hr.employee.bank.accounts,model_hr_employee_bank_accounts,hr_payroll.group_hr_payroll_manager,1,1,1,1
+access_hr_company_bank_accounts,hr.company.bank.accounts,model_hr_company_bank_accounts,hr_payroll.group_hr_payroll_manager,1,1,1,1
+access_res_partner,res.partner,base.model_res_partner,hr_payroll.group_hr_payroll_manager,1,1,1,1

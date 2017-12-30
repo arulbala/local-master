@@ -1,0 +1,552 @@
+<?xml version="1.0" ?>
+<odoo>
+    <data>
+        <template id="assets_backend_payroll_uae" name="UAE Payroll" inherit_id="web.assets_backend">
+            <xpath expr="//script[last()]" position="after">
+                <script type="text/javascript" src="/hr_payroll_uae/static/src/js/payroll.js"></script>
+            </xpath>
+        </template>
+        <record model="ir.actions.act_window" id="hr_payroll_drafted_payslips">
+            <field name="name">Drafted Payslips</field>
+            <field name="res_model">hr.payslip</field>
+            <field name="view_type">tree</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="hr_payroll.view_hr_payslip_tree"/>
+            <!--<field name="help" type="html">
+              <div class="oe_empty_custom_dashboard">
+                  <p>
+                    <b>Your personal dashboard is empty.</b>
+                  </p><p>
+                    To add your first report into this dashboard, go to any
+                    menu, switch to list or graph view, and click <i>'Add to
+                    Dashboard'</i> in the extended search options.
+                  </p><p>
+                    You can filter and group data before inserting into the
+                    dashboard using the search options.
+                  </p>
+              </div>
+            </field>-->
+        </record>
+        <record id="inteslar_payroll_dashboard_view" model="ir.ui.view">
+            <field name="name">inteslar.payroll.dashboard</field>
+            <field name="model">board.board</field>
+            <field name="arch" type="xml">
+                <form string="Payroll Dashboard">
+                    <input type="hidden" id="payslip_state" value="paid"/>
+                    <div class="col-md-12">
+                        <div class="main_tabs">
+                            <script>
+                                $(document).ready(function(){
+                                    $('#LoadBtn').click(function(){
+                                        $("payslip_state").val('paid');
+                                        load_analytics();
+                                    });
+
+                                    $("#btn_drafted_payslips").click(function(){
+                                        /*var date_from=$("#date_from").val();
+                                        var date_to=$("#date_to").val();
+                                        var url = '/web#view_type=tree&amp;model=hr.payslip&amp;action=hr_payroll_uae.hr_payroll_uae_action_drafted&amp;date_from='+date_from+'&amp;date_to='+date_to;
+                                        window.location = url;*/
+                                        $("#payslip_state").val('draft');
+                                        load_analytics();
+                                    });
+                                    $("#btn_posted_payslips").click(function(){
+                                        /*var date_from=$("#date_from").val();
+                                        var date_to=$("#date_to").val();
+                                        var url = '/web#view_type=tree&amp;model=hr.payslip&amp;action=hr_payroll_uae.hr_payroll_uae_action_posted&amp;date_from='+date_from+'&amp;date_to='+date_to;
+                                        window.location = url;*/
+                                        $("#payslip_state").val('done');
+                                        load_analytics();
+                                    });
+                                    $("#btn_paid_payslips").click(function(){
+                                        /*var date_from=$("#date_from").val();
+                                        var date_to=$("#date_to").val();
+                                        var url = '/web#view_type=tree&amp;model=hr.payslip&amp;action=hr_payroll_uae.hr_payroll_uae_action_paid&amp;date_from='+date_from+'&amp;date_to='+date_to;
+                                        window.location = url;*/
+                                        $("#payslip_state").val('paid');
+                                        load_analytics();
+                                    });
+                                });
+                                function formatDate(date) {
+                                    var d = new Date(date),
+                                        month = '' + (d.getMonth() + 1),
+                                        day = '' + d.getDate(),
+                                        year = d.getFullYear();
+
+                                    if (month.length &lt; 2) month = '0' + month;
+                                    if (day.length &lt; 2) day = '0' + day;
+
+                                    return [year, month, day].join('-');
+                                }
+
+                            </script>
+                            <style>
+                                .main_tabs
+                                {
+                                    display:flex;
+                                }
+                                .payroll_tabs{
+                                    padding:10px 0 !important;
+                                    text-align:center;
+                                    width:33%;
+                                    margin-right:1px;
+                                    color:#fff;
+
+                                }
+
+                                .payroll_tabs:hover,.payroll_tabs:visited,.payroll_tabs:focus{
+                                    color:#f8fcff;
+                                }
+                                .payroll_tabs h4{
+                                    font-size:18px;
+                                    font-family:arial;
+                                    font-weight:normal;
+                                }
+                                .payroll_tabs i
+                                {
+                                    font-size:2.5em;
+                                }
+                                .payroll_tabs span
+                                {
+                                    font-size:17px;
+                                }
+                                .drafted
+                                {
+                                    background-color:#d75a7b;
+                                }
+                                .posted
+                                {
+                                    background-color:#e96c4c;
+                                }
+                                .paid
+                                {
+                                    background-color:#2fbdb8;
+                                }
+                                .process_form
+                                {
+                                    background-color:#D6EAF8;
+                                }
+                                .process_form div{
+                                    padding-left:0 !important;
+                                    margin:4% 0 0 0;
+                                }
+                                .process_form div:last-child{
+                                    margin:7.3% 0 0 0 !important;
+                                }
+                                .process_form input
+                                {
+                                    width:100%;
+                                    height:35px;
+                                    border:none;
+                                }
+                                .error
+                                {
+                                    /*outline-color:#d75a7b;
+                                    outline-width:1px;*/
+                                    border:1px solid #d75a7b !important;
+                                }
+                                .highlight
+                                {
+                                    outline:3.5px solid #3498db !important;
+                                    z-index:999;
+                                }
+                            </style>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <a href="javascript:void(0);" id="btn_drafted_payslips" class="col-md-4 payroll_tabs drafted">
+                                        <i class="fa fa-pencil-square"></i>
+                                        <h4>Drafted</h4>
+                                        <span id="totalDrafted"></span>
+                                    </a>
+                                    <a href="javascript:void(0);" id="btn_posted_payslips" class="col-md-4 payroll_tabs posted">
+                                        <i class="fa fa-clipboard"></i>
+                                        <h4>Posted</h4>
+                                        <span id="totalPosted"></span>
+                                    </a>
+                                    <a href="javascript:void(0);" id="btn_paid_payslips" class="col-md-4 payroll_tabs paid">
+                                        <i class="fa fa-money"></i>
+                                        <h4>Paid</h4>
+                                        <span id="totalPaid"></span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 process_form">
+                                <div class="col-md-4">
+                                    Start Date
+                                    <input type="date" id="date_from" name="date_from"/>
+                                </div>
+                                <div class="col-md-4">
+                                    End Date
+                                    <input type="date" id="date_to" name="date_to"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <a id="LoadBtn" href="javascript:void(0);" class="btn btn-primary btn-sm o-kanban-button-new btn-default">
+                                        Load Payroll
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:30px;">
+                            <div class="col-md-3">
+
+                            </div>
+                            <div class="col-md-9">
+                                <div id="container_payroll_summary"></div>
+                                <script>
+                                    function load_payroll_summary(date_from,date_to,state)
+                                    {
+                                        if($('#container_payroll_summary').length)
+                                        {
+                                            $.getJSON('/hr_payroll_uae/payroll_summary',{csrf_token:odoo.csrf_token,date_from:date_from,date_to:date_to,state:state} ,function(data) {
+                                                $('#container_payroll_summary').highcharts({
+                                                    chart: {
+                                                        type: 'column',
+                                                        backgroundColor:'#f8fcff',
+                                                        options3d: {
+                                                            enabled: true,
+                                                            alpha: 15,
+                                                            beta: 15,
+                                                            viewDistance: 25,
+                                                            depth: 40
+                                                        }
+                                                    },
+                                                    legend:{
+                                                        enabled:false,
+                                                    },
+                                                    credits:{
+                                                        enabled:true,
+                                                    },
+                                                    title: {
+                                                        text: 'Payroll Summary By Department'
+                                                    },
+
+                                                    xAxis: {
+                                                        categories: data[0],
+                                                        labels: {
+                                                            skew3d: true,
+                                                            style: {
+                                                                fontSize: '16px'
+                                                            }
+                                                        }
+                                                    },
+                                                    yAxis: {
+                                                        allowDecimals: false,
+                                                        min: 0,
+                                                        title: {
+                                                            text: '',
+                                                            skew3d: false
+                                                        }
+                                                    },
+
+                                                    tooltip: {
+                                                        headerFormat: '<b>{point.key}</b>',
+                                                        pointFormat: '<span style="color:{series.color}">\u25CF</span> {series.name}: {point.y} / {point.stackTotal}'
+                                                    },
+
+                                                    plotOptions: {
+                                                        column: {
+                                                            stacking: 'normal',
+                                                            depth: 40
+                                                        }
+                                                    },
+
+                                                    series: data[1]
+                                                });
+                                            });
+                                        }
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:30px;">
+                            <div class="col-md-6">
+                                <div id="container_payroll_breakdown"></div>
+                                <script type="text/javascript">
+                                    function load_payroll_breakdown(date_from,date_to,state)
+                                    {
+                                        if($('#container_payroll_breakdown').length)
+                                        {
+                                            $.getJSON('/hr_payroll_uae/payroll_breakdown',{csrf_token:odoo.csrf_token,date_from:date_from,date_to:date_to,state:state} ,function(data) {
+                                                $('#container_payroll_breakdown').highcharts({
+                                                    chart: {
+                                                    type: 'pie',
+                                                    backgroundColor:'#f8fcff',
+                                                    options3d: {
+                                                        enabled: true,
+                                                        alpha: 45,
+                                                        beta: 0
+                                                    }
+                                                    },
+                                                    credits:{
+                                                        enabled : true
+                                                    },
+                                                    title: {
+                                                        text: 'Payroll Breakdown (Paid)'
+                                                    },
+                                                    plotOptions: {
+                                                        pie: {
+                                                            allowPointSelect: true,
+                                                            cursor: 'pointer',
+                                                            depth: 45,
+                                                            size:250,
+                                                            dataLabels: {
+                                                                enabled: true,
+                                                                format: '{point.name}'
+                                                            }
+                                                        }
+                                                    },
+                                                    series: [{
+                                                            type: 'pie',
+                                                            name: 'Amount',
+                                                            data: data
+                                                    }]
+                                                });
+                                            });
+                                        }
+                                    }
+                                </script>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="container_payroll_breakdown3"></div>
+                                <script type="text/javascript">
+                                    function load_payroll_breakdown_deductions(date_from,date_to,state)
+                                    {
+                                        if($('#container_payroll_breakdown3').length)
+                                        {
+                                            $.getJSON('/hr_payroll_uae/payroll_breakdown_deductions',{csrf_token:odoo.csrf_token,date_from:date_from,date_to:date_to,state:state} ,function(data) {
+                                                $('#container_payroll_breakdown3').highcharts({
+                                                    chart: {
+                                                    type: 'pie',
+                                                    backgroundColor:'#f8fcff',
+                                                    options3d: {
+                                                        enabled: true,
+                                                        alpha: 45,
+                                                        beta: 0
+                                                    }
+                                                    },
+                                                    credits:{
+                                                        enabled : true
+                                                    },
+                                                    title: {
+                                                        text: 'Deductions Breakdown'
+                                                    },
+                                                    plotOptions: {
+                                                        pie: {
+                                                            allowPointSelect: true,
+                                                            cursor: 'pointer',
+                                                            depth: 45,
+                                                            size:250,
+                                                            dataLabels: {
+                                                                enabled: true,
+                                                                format: '{point.name}'
+                                                            }
+                                                        }
+                                                    },
+                                                    series: [{
+                                                            type: 'pie',
+                                                            name: 'Amount',
+                                                            data: data
+                                                    }]
+                                                });
+                                            });
+                                        }
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:30px;">
+                             <div class="col-md-6">
+                                <div id="container_salary"></div>
+                                <script>
+                                    function load_payroll_employees_salary()
+                                    {
+                                        if($('#container_salary').length)
+                                        {
+                                            $.getJSON('/hr_payroll_uae/payroll_employees_salary',{csrf_token:odoo.csrf_token} ,function(data) {
+                                                $('#container_salary').highcharts({
+                                                    chart: {
+                                                        type: 'bar',
+                                                        backgroundColor:'#f8fcff'
+                                                    },
+                                                    credits:{
+                                                        enabled : true
+                                                    },
+                                                    title: {
+                                                        text: 'Employees by monthly Basic Salary'
+                                                    },
+                                                    subtitle: {
+                                                        text: ''
+                                                    },
+                                                    xAxis: {
+                                                        categories: data[0],
+                                                        title: {
+                                                            text: null
+                                                        }
+                                                    },
+                                                    yAxis: {
+                                                        min: 0,
+                                                        title: {
+                                                            text: 'Employees',
+                                                            align: 'high'
+                                                        },
+
+                                                        labels: {
+                                                            overflow: 'justify'
+                                                        }
+                                                    },
+                                                    tooltip: {
+                                                        valueSuffix: ''
+                                                    },
+                                                    plotOptions: {
+                                                        bar: {
+                                                            dataLabels: {
+                                                                enabled: true
+                                                            }
+                                                        }
+                                                    },
+                                                    legend: {
+                                                        layout: 'vertical',
+                                                        align: 'right',
+                                                        verticalAlign: 'top',
+                                                        x: -40,
+                                                        y: 80,
+                                                        floating: true,
+                                                        borderWidth: 1,
+                                                        backgroundColor: ((Highcharts.theme &amp;&amp; Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                                                        shadow: true
+                                                    },
+                                                    credits: {
+                                                        enabled: false
+                                                    },
+                                                    series: [{
+                                                        showInLegend: false,
+                                                        name: 'Employees',
+                                                        data: data[1]
+                                                    }]
+                                                });
+                                            });
+                                        }
+                                    }
+                                </script>
+                            </div>
+                            <div class="col-md-6">
+
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+
+                        function update_total_tabs(date_from,date_to)
+                        {
+                            $.getJSON('/hr_payroll_uae/update_total_tabs',{csrf_token:odoo.csrf_token,'date_from':date_from,'date_to':date_to} ,function(data) {
+                                $("#totalDrafted").html(data.drafted_total);
+                                $("#totalPosted").html(data.posted_total);
+                                $("#totalPaid").html(data.paid_total);
+                            });
+                        }
+
+                        function load_analytics()
+                        {
+                            date_from = $("#date_from").val();
+                            date_to = $("#date_to").val();
+                            flag = 0;
+                            if(!date_from)
+                            {
+                                $("#date_from").addClass('error');
+                            }
+                            else
+                            {
+                                $("#date_from").removeClass('error');
+                            }
+
+                            if(!date_to)
+                            {
+                                $("#date_to").addClass('error');
+                            }
+                            else
+                            {
+                                $("#date_to").removeClass('error');
+                            }
+
+                            if(!date_from || !date_to)
+                            {
+                                flag=1;
+                            }
+                            if(flag==1)
+                            {
+                                return false;
+                            }
+                            var state = $("#payslip_state").val();
+
+                            if(state == 'draft')
+                            {
+                                $("#btn_drafted_payslips").addClass('highlight');
+                                $("#btn_posted_payslips").removeClass('highlight');
+                                $("#btn_paid_payslips").removeClass('highlight');
+                            }
+                            if(state == 'done')
+                            {
+                                $("#btn_drafted_payslips").removeClass('highlight');
+                                $("#btn_posted_payslips").addClass('highlight');
+                                $("#btn_paid_payslips").removeClass('highlight');
+                            }
+                            if(state == 'paid')
+                            {
+                                $("#btn_drafted_payslips").removeClass('highlight');
+                                $("#btn_posted_payslips").removeClass('highlight');
+                                $("#btn_paid_payslips").addClass('highlight');
+                            }
+
+                            update_total_tabs(date_from,date_to);
+                            load_payroll_summary(date_from,date_to,state);
+                            load_payroll_breakdown(date_from,date_to,state);
+                            load_payroll_breakdown_deductions(date_from,date_to,state)
+                            load_payroll_employees_salary();
+                        }
+
+                        $(document).ready(function(){
+                            var date = new Date();
+                            var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+                            var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+                            $("#date_from").val(formatDate(firstDay));
+                            $("#date_to").val(formatDate(lastDay));
+                            load_analytics();
+                        });
+                    </script>
+                </form>
+            </field>
+        </record>
+        <!--My Dashboard Action-->
+        <record model="ir.actions.act_window" id="action_payroll_dashboard">
+            <field name="name">Payroll Dashboard</field>
+            <field name="res_model">board.board</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="usage">menu</field>
+            <field name="view_id" ref="inteslar_payroll_dashboard_view"/>
+            <!--<field name="help" type="html">
+              <div class="oe_empty_custom_dashboard">
+                  <p>
+                    <b>Your personal dashboard is empty.</b>
+                  </p><p>
+                    To add your first report into this dashboard, go to any
+                    menu, switch to list or graph view, and click <i>'Add to
+                    Dashboard'</i> in the extended search options.
+                  </p><p>
+                    You can filter and group data before inserting into the
+                    dashboard using the search options.
+                  </p>
+              </div>
+            </field>-->
+        </record>
+
+        <!--My Dashboard Menu-->
+       <menuitem
+            id="menu_payroll_dashboard"
+            parent="hr_payroll.menu_hr_payroll_root"
+            action="action_payroll_dashboard"
+            groups="hr_payroll.group_hr_payroll_manager"
+            sequence="-1"/>
+    </data>
+</odoo>

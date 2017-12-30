@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_payslipdetails_inherit" inherit_id="hr_payroll.report_payslipdetails">
+            <xpath expr="//table[3][@class='table table-condensed mt32']" position="after">
+                    <p class="text-right"><strong>Total Amount</strong></p>
+                    <p class="text-right" t-field="o.total_amount"></p><br/><br/>
+            </xpath>
+    </template>
+</odoo>
